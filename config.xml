@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns = "http://www.w3.org/ns/widgets"
+	xmlns:gap = "http://phonegap.com/ns/1.0"
+	id = "com.phonegap.example"
+	version = "1.0">
+	<name>MPSGIS Buddy</name>
+	<description>
+		The official app for organizing your MPSGIS classes!
+	</description>
+	<author>Mohammed Kemal</author>
+	
+	<gap:platform name="android"/>
+	
+	<preference name="phonegap-version" value="cli-5.2.0"/>
+	<preference name="oreintation" value="portrait"/>
+	<preference name="fullscreen" value="false"/>
+	<preference name="webviewbounce" value="false"/>
+	<preference name="DisallowOverscroll" value="true"/>
+	<preference name="exit-on-suspend" value="true"/>
+	<preference name="prerendered-icon" value="false"/>
+	<preference name="android-minSdkVersion" value="14"/>
+	<preference name="android-installLocation" value="auto"/>
+	<preference name="BackgroundColor" value="0xffffffff"/>
+	<preference name="KeepRunning" value="false"/>
+	
+	<icon src="images/icon.png"/>
+	<gap:splash src="images/splash.png"/>
+	
+	<feature name="http://api.phonegap.com/1.0/battery"/>
+	<feature name="http://api.phonegap.com/1.0/camera"/>
+	<feature name="http://api.phonegap.com/1.0/contacts"/>
+	<feature name="http://api.phonegap.com/1.0/file"/>
+	<feature name="http://api.phonegap.com/1.0/geolocation"/>
+	<feature name="http://api.phonegap.com/1.0/media"/>
+	<feature name="http://api.phonegap.com/1.0/network"/>
+	<feature name="http://api.phonegap.com/1.0/notification"/>
+	
+	<gap:plugin name="org.apache.cordova.camera"/>
+	<gap:plugin name="org.apache.cordova.geolocation"/>
+	<gap:plugin name="org.apache.cordova.dialogs"/>
+	<gap:plugin name="org.apache.cordova.device"/>
+	<gap:plugin name="org.apache.cordova.console"/>
+	<gap:plugin name="org.apache.cordova.network-information"/>
+	<gap:plugin name="org.apache.cordova.splashscreen"/>
+	
+	<access origin="http://www.umd.edu" subdomains="true"/>
+	
+	
+	</widget>

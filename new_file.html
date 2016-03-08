@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame 
+       Remove this if you use the .htaccess -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <title>Lab 7</title>
+  <meta name="description" content="">
+  <meta name="author" content="Mohammed Kemal">
+
+  <meta name="viewport" content="width=device-width; initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge"> <!-- For intranet testing only, remove in production. -->
+  <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+  <!-- Replace favicon.ico & apple-touch-icon.png in the root of your domain and delete these references -->
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  
+  <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+  <link rel="stylesheet" href="css/mystyles.css" />
+  <link rel="stylesheet" href="css/mytheme.css" />
+  <link rel="stylesheet" href="css/jquery.mobile.structure-1.4.5.min.css" />
+	
+	<script src="js/jquery-1.11.3.min.js"></script>
+	<script src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places"></script>
+	<script src="js/jquery.mobile-1.4.5.min.js"></script>
+	<script src="phonegap.js"></script><!-- end phonegap-->
+<script src="phonegap.js"></script>
+<script> //insert an oil spill
+		var geocoder;
+		var currentLocation;
+		var searchResults;
+		var map;
+			
+		 function init(){
+				if(navigator.geolocation){
+					navigator.geolocation.watchPosition(showLocation, locationError);
+				} else {
+					alert("Geolocation not supported on this device.");
+					return;
+					
+					//Defined "click" events
+				}
+			
+			}//end init
+			
+			function showLocation(location){
+				
+				geocoder = new google.maps.Geocoder();
+				currentLocation=new google.maps.LatLng(location.coords.latitude,location.coords.longitude);
+				
+				$("#lat").attr("value",location.coords.latitude);
+				$("#lng").attr("value", location.coords.longitude);
+				
+				geocoder.geocode({'location':currentLocation}, function(results,status){
+					if(status == google.maps.GeocoderStatus.OK){
+						if (results[0]){
+							//Enter your code here 
+							$("#address").attr("value", results[0].formatted_address);
+						}else{
+							$('#address').html('No address found');
+						}
+					}else{
+							$('#address').html('Unable to determine address');
+					}
+				});//end of geocode
+				var d = new Date(location.timestamp);
+				
+				
+				$("#rdate").attr("value", formatDate(d));
+				//var temp="Geocoding Not In Operation...Sorry!";
+				//$('#loc').html(temp);
+				var info="Latitude: " + parseFloat(location.coords.latitude).toFixed(3) + "<br/>";
+				info +="Longitude: " + parseFloat(location.coords.longitude).toFixed(3) + "<br/>";
+				info +="Accuracy " + location.coords.accuracy + "m<br/>";
+				info+= "Updated: " + new Date(location.timestamp).toLocaleString();
+				$('#acc').html(info);
+			}//end showLocation
+			
+			function formatDate(date) {
+				return date.getFullYear() + '-' +
+					(date.getMonth() < 9 ? '0' : '') + (date.getMonth()+1) + '-' +
+					(date.getDate() < 10 ? '0' : '') + date.getDate();
+				
+			}//end formatDate
+			
+			function locationError(error){
+				switch (error.code) {
+					case error.PERMISSION_DENIED:
+						alert("Geolocation acess denied or disabled. To enable geolocation"+
+						"on your smartphone, go to settings> General> Location Services");
+						break;
+					case error.POSITION_UNAVAILABLE:
+						alert("Current location not avialable");
+						break;
+					case error.TIMEOUT:
+						alert("Timeout");
+						break;
+					default:
+						alert("Unknown Error");
+						break;
+				}//end switch
+			}//end locationError
+			
+			$(document).on('pagecreate',"#home",init);
+			
+			//Table Functions
+			$(document).on("pagecreate","#studySubmit",function(){
+				$("#submit").on("click",function(e){
+					var formData = $("#insertForm").serialize();
+					$.ajax({
+						type:"POST",
+						url: "insert_study.php",
+						cache:false,
+						data: formData,
+						success: onSuccess
+					});
+					
+					e.preventDefault();
+				});
+				
+				
+			});//end #studySubmit pagecreate function
+			
+			$("#studyList").ready(function(e){
+					$.ajax({
+						url: "list_study.php",
+						cache: false,
+						success: processStudyList
+					});
+				});	
+				
+			function onSuccess(data,status){
+				$("#message").fadeIn(2000);
+				$("#message").css("background-color","#fff9b1");
+				$("#message").html(data);
+				$("#message").fadeOut(5000);
+			}//end onSuccess
+			
+			function processStudyList(data, status){
+				$("#listStudy").html(data);
+				$("#listStudy").listview("refresh");
+			}// end processCollisionList
+			
+	</script>
+
+</head>
+
+<body>
+	<!--  Pg. 1 ==> Home Page --> 
+	<div id="homeView" data-role="page">
+		<div data-role="header" data-position="fixed" id="header1">
+			<h1>Oil Detection</h1>
+		</div>
+		<p><img src="images/noaa.jpg" width="500" height="300" name="slide" /></p>
+		<script type="text/javascript">
+		        var step=1;
+		        function slideit()
+		        {
+		            document.images.slide.src = eval("image"+step+".src");
+		            if(step<2)
+		                step++;
+		            else
+		                step=1;
+		            setTimeout("slideit()",2500);
+		        }
+		        slideit();
+		</script>		
+		<div data-role="content">
+			<!--<center><img src="images/noaa.jpg" width="100%" alt="NOAA"/></center>	-->			
+			<ul data-role="listview" data-inset="true">
+				<li><a href="#info"  data-transition"flip">About SAB</a></li>
+				<li><a href="#rpt"  data-transition"flip">Report an oil spill</a></li>
+				<li><a href="#show"  data-transition"flip">Show MPSR</a></li>
+				<li><a href="#maps" data-transition"flip">Map</a></li>				
+				<li><a href="#chckView" data-transition"slide">Contact Us</a></li>
+			</ul>
+		</div>		
+	</div>
+	
+	<!--  AboutSAB --> 
+	<div id="info" data-role="page" data-theme="a" >
+		<div data-role="header" data-position="fixed" id="header1" data-add-back-btn="true">
+			<a href="#homeView" class="ui-btn ui-icon-home ui-btn-icon-notext ui-shadow ui-corner-all">Home</a>
+			<h1>About SAB</h1>			
+		</div>			
+		<div data-position="fixed" id="header1" >		
+		</div>
+		<div  align="none" data-role="content">	
+			<h2>Monitoring the Oceans for Oil Spills</h2>	
+			<img src="images/dwh_spill.jpg" align="center">
+			<p>The Satellite Analysis Branch of NOAA/NESDIS has been working since December 2008 to develop the capability of detecting oil slicks in high-resolution satellite imagery in order to meet NOAA’s Emergency Response Division (ERD) request for analysis support for oil spills. Since then, other customers have been added to the oil mapping distribution list that include the US Coast Guard, the Bureaus of Ocean Energy Management (BOEM) and the Bureau of Safety and Environmental Enforcement (BSEE).</p>
+			<p>The Marine Pollution Surveillance Program consists of manual detection and mapping of oil slicks primarily through the use of available moderate to high resolution multispectral imagery such as MODIS (NASA) and FORMOSAT-2 (NSPO) , but occasionally even space-based Synthetic Aperture Radar (SAR), such as RADARSAT-2 (Canadian). SAR imagery has proven to be a useful tool in capturing oil slicks because it depicts the wave-suppression that oil creates on the sea surface, provides wide spatial coverage, and works day or night.</p>							
+			<dl>
+			  <dt><h2>Mission Objectives</h2></dt>					
+			  <dd>Provide satellite-based analyses for oil spill incidences declared by NOS ERD</dd>
+			  <dd >Routinely monitor for any anomalous features in satellite imagery that are believed to be oil from man-made spills and report findings to NOS, USCG, and BOEMRE.</dd>
+			  <h2>What is the Marine Pollution Surveillance Report (MPSR)?</h2>
+			  <dt><p>The Marine Pollution Surveillance Report is issued by SAB satellite analysts when “anomalies” or man-made oil slicks are suspected to be observed in satellite imagery.  These reports are distributed to NOAA’s Emergency Response Division, U.S. Coast Guard and the Bureaus of Ocean Energy Management (BOEM) and of Safety and Environmental Enforcement (BSEE).  The reports include the following information for each oil spill incident:</p>	</dt>				
+			  <dd>Satellite data source, resolution, mode, and date/time of image</dd>	
+			  <dd>Map depicting extent of surface oil and false-positives</dd>	
+			  <dd>Remarks detailing characteristics of the slick, weather conditions and uncertainties</dd>	
+			  <dd>KML and shapefiles of the anomaly are provided along with report</dd>	
+			  <dd>MPSRs are only available to government officials</dd>				  			  			  			  	
+			</dl>				
+		</div>
+		<div data-role="footer" id="footer1" >	
+			<div data-role="navbar" >
+				<ul data-role="listview" data-inset="true">
+					<li><a href="#homeView" data-transition"slide">Home</a></li>					
+					<li><a href="#rpt"  data-transition"flip">Report an oil spill</a></li>
+					<li><a href="#show"  data-transition"flip">Show MPSR</a></li>
+					<li><a href="#maps" data-transition"flip">Map</a></li>				
+					<li><a href="#chckView" data-transition"slide">Contact Us</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	
+	<!--  Report Oil Spill --> 	
+	<div id="rpt" data-role="page" data-theme="a" >
+		<div data-role="header" data-position="fixed" id="header1" data-add-back-btn="true">
+			<a href="#homeView" class="ui-btn ui-icon-home ui-btn-icon-notext ui-shadow ui-corner-all">Home</a>
+			<h1>Report Oil SPill</h1>			
+		</div>			
+		<div data-position="fixed" id="header1" >		
+		</div>
+
+		<div data-role="content" data-position="fixed">
+			<h3>*Please remember for the best results when submitting a study location. Stand in that location when submitting.</h3>
+				<form id="insertForm" method="post">
+					
+					<label for="txtName">Name:</label>
+					<input type="text" id="txtName" name="txtName" value="" placeholder="Name the study area. (Rm101 Lefrak)"/>
+					
+					<div class="ui-field-contain">
+						<label for="lat"><b>Latitude:</b></label>
+						<input type="number" name="lat" id="lat" value="" placeholder="Enter the Latitude" min="-90" max="90" step="0.000001"/>
+					</div><!--ui-field-contain latitude End -->
+					
+					<div class="ui-field-contain">
+						<label for="lng"><b>Longitude:</b></label>
+						<input type="number" name="lng" id="lng" value="" placeholder="Enter the Longitude" min="-90" max="90" step="0.000001"/>
+					</div><!--ui-field-contain longitude End -->
+					
+					<div class="ui-field-contain">
+						<label for="address"><b>Address:</b></label>
+						<input type="text" name="address" id="address" value="" placeholder="Enter the address"/>
+					</div><!--ui-field-contain address End -->
+					
+					<label for="Description">Description:</label>
+					<input type="text" id="txtDesc" name="txtDesc" value="" placeholder="Write a brief description of the area."/>
+					
+					<label for="Pros">Pros:</label>
+					<input type="text" id="txtPros" name="txtPros" value="" placeholder="Why do you like this area?"/>
+					
+					<label for="Cons">Cons:</label>
+					<input type="text" id="txtCons" name="txtCons" value="" placeholder="Are there any problems with the area?"/>
+					
+					<fieldset class="ui-grid-a">
+						<div class="ui-block-a"><a href="#homeView" id="cancel" data-role="button">Cancel</a></div>
+						<div class="ui-block-b"><button id="submit" type="submit">Submit</button></div>
+					</fieldset>
+					
+					<h3 id="message"></h3>
+				</form>
+		</div><!--end content-->
+		<div data-role="footer" id="footer1" >	
+			<div data-role="navbar" >
+				<ul data-role="listview" data-inset="true">
+					<li><a href="#homeView" data-transition"slide">Home</a></li>					
+					<li><a href="#info"  data-transition"flip">About SAB</a></li>
+					<li><a href="#show"  data-transition"flip">Show MPSR</a></li>
+					<li><a href="#maps" data-transition"flip">Map</a></li>				
+					<li><a href="#chckView" data-transition"slide">Contact Us</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<!--  Show Oil Spill --> 	
+	<div id="show" data-role="page" data-theme="a" >
+		<!--<form name="htform" action="javascript:htaction()">
+		Username:<input type="text" name="mtusr" size="20"><br> 
+		Password:<input type="password" name="mtpwd" size="20"><br>
+		<input type="submit" name="submit2" value="Login">
+		</form> -->
+  
+		<div data-role="header" data-position="fixed" id="header1" data-add-back-btn="true">
+			<a href="#homeView" class="ui-btn ui-icon-home ui-btn-icon-notext ui-shadow ui-corner-all">Home</a>
+			<h1>Show Oil Spill</h1>			
+		</div>			
+		<div data-position="fixed" id="header1" >		
+		</div>
+									
+		<div data-role="content" data-position="fixed">
+				<ul id="listStudy" data-role="listview" data-inset="true">
+					
+				</ul>
+		</div><!--end content-->	
+		<div data-role="footer" id="footer1" >	
+			<div data-role="navbar" >
+				<ul data-role="listview" data-inset="true">
+					<li><a href="#homeView" data-transition"slide">Home</a></li>					
+					<li><a href="#info"  data-transition"flip">About SAB</a></li>
+					<li><a href="#rpt"  data-transition"flip">Report an oil spill</a></li>
+					<li><a href="#maps" data-transition"flip">Map</a></li>				
+					<li><a href="#chckView" data-transition"slide">Contact Us</a></li>
+				</ul>
+			</div>
+		</div>		
+	</div>
+
+	<!-- Map --> 	
+	<div id="maps" data-role="page" data-theme="a" >
+		<div data-role="header" data-position="fixed" id="header1" data-add-back-btn="true">
+			<a href="#homeView" class="ui-btn ui-icon-home ui-btn-icon-notext ui-shadow ui-corner-all">Home</a>
+			<h1>Map Oil Spill</h1>			
+		</div>			
+		<div data-role="content" data-position="fixed">
+			<div id="mapCanvas" style="height:100%">	
+	
+			</div>
+		</div><!--end content-->
+		<div data-role="footer" id="footer1" >	
+			<div data-role="navbar" >
+				<ul data-role="listview" data-inset="true">
+					<li><a href="#homeView" data-transition"slide">Home</a></li>					
+					<li><a href="#info"  data-transition"flip">About SAB</a></li>
+					<li><a href="#rpt"  data-transition"flip">Report an oil spill</a></li>
+					<li><a href="#show"  data-transition"flip">Show MPSR</a></li>
+					<li><a href="#chckView" data-transition"slide">Contact Us</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<!--  Contact Page --> 
+	<div id="chckView" data-role="page" data-theme="a" >
+		<div data-role="header" data-position="fixed" id="header1" data-add-back-btn="true">
+			<a href="#homeView" class="ui-btn ui-icon-home ui-btn-icon-notext ui-shadow ui-corner-all">Home</a>
+			<h1>Contact Us</h1>
+		</div>
+		<div data-role="content" data-position="fixed">
+			<p>Let me know if you like the app or have any problems.</p>
+				<div id="contact">
+						<form method="post" action="gmail.php">
+							
+							<div  class="form-group">
+								<label for="name">Your Full Name:</label>
+								<input type="text" id="name" name="name" class="form-control" >
+								
+							</div>
+							
+							<div  class="form-group">
+								<label for="email">Your E-Mail Address:</label>
+								<input type="text" id="email" name="email" class="form-control">
+							</div>
+							
+							<div class="form-group">
+								<label for="subject">Subject:</label>
+								<input type="text" id="subject" name="subject" class="form-control" >
+							</div>
+							
+							<div  class="form-group">
+								<label for="mailMessage">Message:</label>
+								<textarea id="mailMessage" name="mailMessage" class="form-control" ></textarea>
+							</div>
+							
+							<fieldset class="ui-grid-a">
+							<div class="ui-block-b"><button id="mailSubmit" value="Send" type="submit">Send</button></div>
+					</fieldset>
+							
+						</form>
+		</div><!--end content-->
+		<div data-role="footer" id="footer1" >	
+			<div data-role="navbar" >
+				<ul data-role="listview" data-inset="true">
+					<li><a href="#homeView" data-transition"slide">Home</a></li>					
+					<li><a href="#info"  data-transition"flip">About SAB</a></li>
+					<li><a href="#rpt"  data-transition"flip">Report an oil spill</a></li>
+					<li><a href="#show"  data-transition"flip">Show MPSR</a></li>
+					<li><a href="#maps" data-transition"flip">Map</a></li>									
+				</ul>
+			</div>
+		</div>		
+
+  </div>
+</body>
+</html>
