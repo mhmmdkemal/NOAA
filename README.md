@@ -1,2 +1,1 @@
-# NOAA
-Oil Detection Web Application
+# Oil Detection Web Application
